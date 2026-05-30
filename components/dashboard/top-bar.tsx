@@ -1,13 +1,26 @@
 "use client"
 
-import { Search, Plus } from "lucide-react"
+import { Search, Plus, Menu } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-export function TopBar() {
+interface TopBarProps {
+  onMenuToggle: () => void
+}
+
+export function TopBar({ onMenuToggle }: TopBarProps) {
   return (
-    <header className="flex h-14 items-center gap-4 border-b border-border px-6">
-      <div className="flex items-center gap-2 font-semibold text-lg">
+    <header className="flex h-14 items-center gap-4 border-b border-border px-4 md:px-6">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onMenuToggle}
+        className="md:hidden"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
+      <div className="hidden md:flex items-center gap-2 font-semibold text-lg">
         DevStash
       </div>
       <div className="flex flex-1 items-center gap-4">
