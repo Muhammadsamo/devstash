@@ -48,8 +48,8 @@ export interface MockItem {
 
 export const currentUser: MockUser = {
   id: "user_1",
-  email: "alex@devstash.io",
-  name: "Alex Chen",
+  email: "demo@devstash.io",
+  name: "Demo User",
   image: null,
   isPro: true,
 };

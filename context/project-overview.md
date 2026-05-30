@@ -231,7 +231,7 @@ model VerificationToken {
 // ITEM TYPES
 // ──────────────────────────────────────────────
 
-enum ContentCategory {
+enum ContentType {
   TEXT
   URL
   FILE
@@ -243,7 +243,7 @@ model ItemType {
   slug     String          @unique // e.g. "snippets" — used in URLs
   icon     String          // Lucide icon name
   color    String          // hex color
-  category ContentCategory
+  category ContentType
   isSystem Boolean         @default(false) // system types cannot be edited/deleted
 
   // null for system types; set for user-created custom types
