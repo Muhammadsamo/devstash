@@ -8,40 +8,50 @@ import {
   ChevronDown,
   ChevronUp,
   Heart,
-  Star,
   LogOut,
-  Folder,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { getIcon } from "@/lib/icon-map"
-import { itemTypes, collections, items, currentUser } from "@/src/lib/mock-data"
 import { Button } from "@/components/ui/button"
+
+interface SidebarItemType {
+  id: string
+  name: string
+  slug: string
+  icon: string
+  color: string
+  count: number
+}
+
+interface SidebarCollection {
+  id: string
+  name: string
+  isFavorite: boolean
+  itemCount: number
+  dominantColor: string | null
+}
+
+interface SidebarUser {
+  name: string | null
+  email: string
+}
 
 interface SidebarProps {
   isOpen: boolean
   isMobileOpen: boolean
   onToggle: () => void
   onMobileClose: () => void
+  itemTypes: SidebarItemType[]
+  collections: SidebarCollection[]
+  user: SidebarUser | null
 }
 
-const favoriteItems = items.filter((i) => i.isFavorite)
-const favoriteColls = collections.filter((c) => c.isFavorite)
-const otherColls = collections.filter((c) => !c.isFavorite)
-
-function getCollectionIcon(colId: string) {
-  const colItems = items.filter((i) => i.collectionId === colId)
-  const typeCount: Record<string, number> = {}
-  for (const item of colItems) {
-    typeCount[item.typeId] = (typeCount[item.typeId] || 0) + 1
-  }
-  const topTypeId = Object.entries(typeCount).sort((a, b) => b[1] - a[1])[0]?.[0]
-  const itemType = itemTypes.find((t) => t.id === topTypeId)
-  return itemType ? getIcon(itemType.icon) : Folder
-}
-
-export function Sidebar({ isOpen, isMobileOpen, onToggle, onMobileClose }: SidebarProps) {
+export function Sidebar({ isOpen, isMobileOpen, onToggle, onMobileClose, itemTypes, collections, user }: SidebarProps) {
   const [collectionsOpen, setCollectionsOpen] = useState(true)
+
+  const favoriteColls = collections.filter((c) => c.isFavorite)
+  const otherColls = collections.filter((c) => !c.isFavorite)
 
   return (
     <>
@@ -96,6 +106,7 @@ export function Sidebar({ isOpen, isMobileOpen, onToggle, onMobileClose }: Sideb
                 >
                   <Icon className="h-4 w-4 shrink-0" style={{ color: type.color }} />
                   {isOpen && <span className="truncate">{type.name}</span>}
+                  {isOpen && <span className="ml-auto text-xs text-muted-foreground">{type.count}</span>}
                 </Link>
               )
             })}
@@ -118,90 +129,70 @@ export function Sidebar({ isOpen, isMobileOpen, onToggle, onMobileClose }: Sideb
 
                 {collectionsOpen && (
                   <div className="mt-1 space-y-0.5">
-                    {favoriteColls.map((col) => {
-                      const Icon = getCollectionIcon(col.id)
-                      return (
-                        <Link
-                          key={col.id}
-                          href={`/collections/${col.id}`}
-                          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors"
-                        >
-                          <Icon className="h-4 w-4 shrink-0" />
-                          <span className="flex-1 truncate">{col.name}</span>
-                          <Heart className="h-3 w-3 shrink-0 fill-current text-red-500" />
-                          <span className="text-xs text-muted-foreground">{col.itemCount}</span>
-                        </Link>
-                      )
-                    })}
-                    {otherColls.map((col) => {
-                      const Icon = getCollectionIcon(col.id)
-                      return (
-                        <Link
-                          key={col.id}
-                          href={`/collections/${col.id}`}
-                          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors"
-                        >
-                          <Icon className="h-4 w-4 shrink-0" />
-                          <span className="flex-1 truncate">{col.name}</span>
-                          <span className="text-xs text-muted-foreground">{col.itemCount}</span>
-                        </Link>
-                      )
-                    })}
+                    {favoriteColls.map((col) => (
+                      <Link
+                        key={col.id}
+                        href={`/collections/${col.id}`}
+                        className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors"
+                      >
+                        <Heart className="h-4 w-4 shrink-0 fill-red-500 text-red-500" />
+                        <span className="flex-1 truncate">{col.name}</span>
+                        <span className="text-xs text-muted-foreground">{col.itemCount}</span>
+                      </Link>
+                    ))}
+                    {otherColls.map((col) => (
+                      <Link
+                        key={col.id}
+                        href={`/collections/${col.id}`}
+                        className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors"
+                      >
+                        <span
+                          className="h-4 w-4 shrink-0 rounded-full"
+                          style={{ backgroundColor: col.dominantColor ?? "#9ca3af" }}
+                        />
+                        <span className="flex-1 truncate">{col.name}</span>
+                        <span className="text-xs text-muted-foreground">{col.itemCount}</span>
+                      </Link>
+                    ))}
+                    <Link
+                      href="/collections"
+                      className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:bg-accent transition-colors"
+                    >
+                      View all collections
+                    </Link>
                   </div>
                 )}
-              </div>
-
-              <div className="border-t border-border pt-2">
-                <p className="text-xs font-semibold text-muted-foreground px-2 pb-1 flex items-center gap-2">
-                  <Star className="h-3 w-3" />
-                  Favorites
-                </p>
-                {favoriteItems.map((item) => {
-                  const type = itemTypes.find((t) => t.id === item.typeId)
-                  const Icon = type ? getIcon(type.icon) : Folder
-                  return (
-                    <Link
-                      key={item.id}
-                      href={`/items/${item.id}`}
-                      className="flex items-center gap-3 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors"
-                    >
-                      <Icon
-                        className="h-4 w-4 shrink-0"
-                        style={type ? { color: type.color } : undefined}
-                      />
-                      <span className="truncate">{item.title}</span>
-                    </Link>
-                  )
-                })}
               </div>
             </>
           )}
         </div>
 
-        <div className={cn(
-          "border-t border-border p-3",
-          !isOpen && "flex flex-col items-center"
-        )}>
+        {user && (
           <div className={cn(
-            "flex items-center gap-3",
-            !isOpen && "flex-col"
+            "border-t border-border p-3",
+            !isOpen && "flex flex-col items-center"
           )}>
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium">
-              {currentUser.name.charAt(0)}
+            <div className={cn(
+              "flex items-center gap-3",
+              !isOpen && "flex-col"
+            )}>
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium">
+                {user.name?.charAt(0) ?? "U"}
+              </div>
+              {isOpen && (
+                <>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{user.name ?? "User"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <Button variant="ghost" size="icon">
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
             </div>
-            {isOpen && (
-              <>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{currentUser.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
-                </div>
-                <Button variant="ghost" size="icon">
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </>
-            )}
           </div>
-        </div>
+        )}
       </aside>
     </>
   )

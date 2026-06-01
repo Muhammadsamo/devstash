@@ -7,7 +7,7 @@ import {
 
 import { getIcon } from "@/lib/icon-map"
 import { getDemoUser, getDashboardCollections } from "@/src/lib/db/collections"
-import { getPinnedItems, getRecentItems } from "@/src/lib/db/items"
+import { getPinnedItems, getRecentItems, getDashboardStats } from "@/src/lib/db/items"
 
 export default async function DashboardPage() {
   const demoUser = await getDemoUser()
@@ -15,7 +15,8 @@ export default async function DashboardPage() {
     return <p className="text-muted-foreground p-8">No demo user found. Run the seed script first.</p>
   }
 
-  const [collections, pinnedItems, recentItems] = await Promise.all([
+  const [stats, collections, pinnedItems, recentItems] = await Promise.all([
+    getDashboardStats(demoUser.id),
     getDashboardCollections(demoUser.id),
     getPinnedItems(demoUser.id),
     getRecentItems(demoUser.id),
@@ -30,6 +31,13 @@ export default async function DashboardPage() {
         <p className="text-muted-foreground text-sm mt-1">
           Here&apos;s what&apos;s happening in your stash.
         </p>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StatCard label="Total Items" value={stats.totalItems} />
+        <StatCard label="Collections" value={stats.totalCollections} />
+        <StatCard label="Item Types" value={stats.totalTypes} />
+        <StatCard label="Favorites" value={stats.favoriteItems} />
       </div>
 
       <section>
@@ -166,6 +174,15 @@ export default async function DashboardPage() {
           })}
         </div>
       </section>
+    </div>
+  )
+}
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg border border-border p-4">
+      <p className="text-2xl font-bold">{value}</p>
+      <p className="text-xs text-muted-foreground mt-1">{label}</p>
     </div>
   )
 }

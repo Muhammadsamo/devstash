@@ -41,6 +41,24 @@ export async function getRecentItems(userId: string): Promise<DashboardItem[]> {
   return items.map(mapItem)
 }
 
+export interface DashboardStats {
+  totalItems: number
+  totalCollections: number
+  totalTypes: number
+  favoriteItems: number
+}
+
+export async function getDashboardStats(userId: string): Promise<DashboardStats> {
+  const [totalItems, totalCollections, totalTypes, favoriteItems] = await Promise.all([
+    prisma.item.count({ where: { userId } }),
+    prisma.collection.count({ where: { userId } }),
+    prisma.itemType.count({ where: { isSystem: true } }),
+    prisma.item.count({ where: { userId, isFavorite: true } }),
+  ])
+
+  return { totalItems, totalCollections, totalTypes, favoriteItems }
+}
+
 function mapItem(item: {
   id: string
   title: string
