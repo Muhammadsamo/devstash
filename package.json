@@ -12,7 +12,7 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:push": "prisma db push",
-    "db:seed": "ts-node prisma/seed.ts",
+    "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:test": "npx tsx scripts/test-db.ts",
     "cf:build": "npx opennextjs-cloudflare build",
@@ -46,6 +46,7 @@
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.22.4",
     "typescript": "^5",
     "wrangler": "^4.86.0"
   }
