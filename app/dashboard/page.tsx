@@ -96,7 +96,8 @@ export default async function DashboardPage() {
                 <Link
                   key={item.id}
                   href={`/items/${item.id}`}
-                  className="rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors flex flex-col min-h-[170px]"
+                  className="rounded-lg border border-border border-l-4 p-4 hover:bg-accent/50 transition-colors flex flex-col min-h-[170px]"
+                  style={{ borderLeftColor: item.type.color }}
                 >
                   <div className="flex items-center gap-2">
                     <Icon
@@ -137,7 +138,8 @@ export default async function DashboardPage() {
               <Link
                 key={item.id}
                 href={`/items/${item.id}`}
-                className="rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors flex flex-col min-h-[170px]"
+                className="rounded-lg border border-border border-l-4 p-4 hover:bg-accent/50 transition-colors flex flex-col min-h-[170px]"
+                style={{ borderLeftColor: item.type.color }}
               >
                 <div className="flex items-center gap-2">
                   <Icon
