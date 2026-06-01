@@ -1,6 +1,6 @@
 # Current Feature
 
-> **Status**: ⬜ Not Started
+> **Status**: ✅ Done
 
 ## Current Feature Details
 
@@ -16,3 +16,4 @@
 | Dashboard UI Layout — Phase 3 | `feature/dashboard-ui-phase-3` | ✅ Done | 2026-05-30 |
 | Neon PostgreSQL + Prisma Setup | `feature/database-setup` | ✅ Done | 2026-05-30 |
 | Database Seed Script | `feature/database-seed` | ✅ Done | 2026-06-01 |
+| Dashboard Collections — Live Data | `feature/dashboard-collections` | ✅ Done | 2026-06-01 |

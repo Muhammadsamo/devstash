@@ -1,50 +1,26 @@
 import Link from "next/link"
 import {
-  FileText,
   Heart,
   Pin,
   ArrowRight,
 } from "lucide-react"
 
 import { getIcon } from "@/lib/icon-map"
-import { items, collections, itemTypes, currentUser } from "@/src/lib/mock-data"
+import { getDashboardData, getDemoUser } from "@/src/lib/db/collections"
 
-function getDominantType(colId: string) {
-  const colItems = items.filter((i) => i.collectionId === colId)
-  const typeCount: Record<string, number> = {}
-  for (const item of colItems) {
-    typeCount[item.typeId] = (typeCount[item.typeId] || 0) + 1
+export default async function DashboardPage() {
+  const demoUser = await getDemoUser()
+  if (!demoUser) {
+    return <p className="text-muted-foreground p-8">No demo user found. Run the seed script first.</p>
   }
-  const topId = Object.entries(typeCount).sort((a, b) => b[1] - a[1])[0]?.[0]
-  return itemTypes.find((t) => t.id === topId)
-}
 
-function getCollectionTypeIcons(colId: string) {
-  const colItems = items.filter((i) => i.collectionId === colId)
-  const seen = new Set<string>()
-  const result: { icon: ReturnType<typeof getIcon>; color: string; name: string }[] = []
-  for (const item of colItems) {
-    const type = itemTypes.find((t) => t.id === item.typeId)
-    if (type && !seen.has(type.id)) {
-      seen.add(type.id)
-      result.push({ icon: getIcon(type.icon), color: type.color, name: type.name })
-    }
-  }
-  return result
-}
+  const data = await getDashboardData(demoUser.id)
 
-const pinnedItems = items.filter((i) => i.isPinned)
-
-const recentItems = [...items]
-  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  .slice(0, 10)
-
-export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold">
-          Welcome back, {currentUser.name.split(" ")[0]}
+          Welcome back, {demoUser.name?.split(" ")[0] ?? "User"}
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
           Here&apos;s what&apos;s happening in your stash.
@@ -54,15 +30,13 @@ export default function DashboardPage() {
       <section>
         <SectionHeader href="/collections" title="Collections" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {collections.map((col) => {
-            const typeIcons = getCollectionTypeIcons(col.id)
-            const dominant = getDominantType(col.id)
+          {data.collections.map((col) => {
             return (
               <Link
                 key={col.id}
                 href={`/collections/${col.id}`}
                 className="rounded-lg border border-border border-l-4 p-4 hover:bg-accent/50 transition-colors flex flex-col min-h-[170px]"
-                style={dominant ? { borderLeftColor: dominant.color } : undefined}
+                style={col.dominantType ? { borderLeftColor: col.dominantType.color } : undefined}
               >
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium">{col.name}</h3>
@@ -79,8 +53,8 @@ export default function DashboardPage() {
                   </p>
                 )}
                 <div className="mt-auto flex items-center gap-1.5 pt-3 flex-wrap">
-                  {typeIcons.map((t, i) => {
-                    const Icon = t.icon
+                  {col.typeIcons.map((t, i) => {
+                    const Icon = getIcon(t.icon)
                     return (
                       <span
                         key={i}
@@ -99,13 +73,12 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {pinnedItems.length > 0 && (
+      {data.pinnedItems.length > 0 && (
         <section>
           <SectionHeader href="/items?pinned=true" title="Pinned Items" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {pinnedItems.map((item) => {
-              const type = itemTypes.find((t) => t.id === item.typeId)
-              const Icon = type ? getIcon(type.icon) : FileText
+            {data.pinnedItems.map((item) => {
+              const Icon = getIcon(item.type.icon)
               return (
                 <Link
                   key={item.id}
@@ -115,7 +88,7 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-2">
                     <Icon
                       className="h-4 w-4 shrink-0"
-                      style={type ? { color: type.color } : undefined}
+                      style={{ color: item.type.color }}
                     />
                     <h3 className="font-medium text-sm truncate">{item.title}</h3>
                     <Pin className="h-3 w-3 shrink-0 text-muted-foreground ml-auto" />
@@ -145,9 +118,8 @@ export default function DashboardPage() {
       <section>
         <SectionHeader href="/items" title="Recent Items" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {recentItems.map((item) => {
-            const type = itemTypes.find((t) => t.id === item.typeId)
-            const Icon = type ? getIcon(type.icon) : FileText
+          {data.recentItems.map((item) => {
+            const Icon = getIcon(item.type.icon)
             return (
               <Link
                 key={item.id}
@@ -157,7 +129,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-2">
                   <Icon
                     className="h-4 w-4 shrink-0"
-                    style={type ? { color: type.color } : undefined}
+                    style={{ color: item.type.color }}
                   />
                   <h3 className="font-medium text-sm truncate">{item.title}</h3>
                   <div className="flex items-center gap-1 shrink-0 ml-auto">

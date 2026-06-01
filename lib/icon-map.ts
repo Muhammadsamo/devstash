@@ -6,6 +6,9 @@ import {
   Paperclip,
   Image,
   Link,
+  Sparkles,
+  StickyNote,
+  File,
   type LucideIcon,
 } from "lucide-react"
 
@@ -17,6 +20,9 @@ const iconMap: Record<string, LucideIcon> = {
   Paperclip,
   Image,
   Link,
+  Sparkles,
+  StickyNote,
+  File,
 }
 
 export function getIcon(name: string): LucideIcon {
