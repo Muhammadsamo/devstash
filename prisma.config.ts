@@ -8,6 +8,10 @@ export default defineConfig({
     seed: 'npx tsx prisma/seed.ts',
   },
   datasource: {
-    url: env('DATABASE_URL'),
+    // Migrations/CLI use a DIRECT (non-pooled) connection. Prisma's migration
+    // engine takes a Postgres advisory lock, which does not work over Neon's
+    // PgBouncer pooler (P1002 advisory-lock timeout). The app runtime still
+    // connects via the pooled DATABASE_URL through the Neon driver adapter.
+    url: env('DIRECT_URL'),
   },
 })
