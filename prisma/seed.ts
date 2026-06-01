@@ -1,6 +1,5 @@
 import 'dotenv/config'
-import { Pool } from 'pg'
-import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaNeon } from '@prisma/adapter-neon'
 import { PrismaClient } from '../src/generated/prisma/client'
 import { ContentType } from '../src/generated/prisma/enums'
 import bcrypt from 'bcryptjs'
@@ -11,8 +10,7 @@ if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is not set')
 }
 
-const pool = new Pool({ connectionString })
-const adapter = new PrismaPg(pool)
+const adapter = new PrismaNeon({ connectionString })
 const prisma = new PrismaClient({ adapter })
 
 const systemItemTypes = [
@@ -626,5 +624,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect()
-    await pool.end()
   })
