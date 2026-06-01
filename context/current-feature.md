@@ -17,3 +17,4 @@
 | Neon PostgreSQL + Prisma Setup | `feature/database-setup` | ✅ Done | 2026-05-30 |
 | Database Seed Script | `feature/database-seed` | ✅ Done | 2026-06-01 |
 | Dashboard Collections — Live Data | `feature/dashboard-collections` | ✅ Done | 2026-06-01 |
+| Dashboard Items — Live Data | `feature/dashboard-items` | ✅ Done | 2026-06-01 |

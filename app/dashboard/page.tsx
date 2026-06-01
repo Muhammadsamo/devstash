@@ -6,7 +6,8 @@ import {
 } from "lucide-react"
 
 import { getIcon } from "@/lib/icon-map"
-import { getDashboardData, getDemoUser } from "@/src/lib/db/collections"
+import { getDemoUser, getDashboardCollections } from "@/src/lib/db/collections"
+import { getPinnedItems, getRecentItems } from "@/src/lib/db/items"
 
 export default async function DashboardPage() {
   const demoUser = await getDemoUser()
@@ -14,7 +15,11 @@ export default async function DashboardPage() {
     return <p className="text-muted-foreground p-8">No demo user found. Run the seed script first.</p>
   }
 
-  const data = await getDashboardData(demoUser.id)
+  const [collections, pinnedItems, recentItems] = await Promise.all([
+    getDashboardCollections(demoUser.id),
+    getPinnedItems(demoUser.id),
+    getRecentItems(demoUser.id),
+  ])
 
   return (
     <div className="space-y-8">
@@ -30,7 +35,7 @@ export default async function DashboardPage() {
       <section>
         <SectionHeader href="/collections" title="Collections" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.collections.map((col) => {
+          {collections.map((col) => {
             return (
               <Link
                 key={col.id}
@@ -73,11 +78,11 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      {data.pinnedItems.length > 0 && (
+      {pinnedItems.length > 0 && (
         <section>
           <SectionHeader href="/items?pinned=true" title="Pinned Items" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {data.pinnedItems.map((item) => {
+            {pinnedItems.map((item) => {
               const Icon = getIcon(item.type.icon)
               return (
                 <Link
@@ -118,7 +123,7 @@ export default async function DashboardPage() {
       <section>
         <SectionHeader href="/items" title="Recent Items" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {data.recentItems.map((item) => {
+          {recentItems.map((item) => {
             const Icon = getIcon(item.type.icon)
             return (
               <Link
