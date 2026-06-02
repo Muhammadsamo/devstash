@@ -9,6 +9,11 @@ import { getIcon } from "@/lib/icon-map"
 import { getDemoUser, getDashboardCollections } from "@/src/lib/db/collections"
 import { getPinnedItems, getRecentItems, getDashboardStats } from "@/src/lib/db/items"
 
+// Live data — render per request (on the Worker / server) instead of
+// prerendering at build time, so the dashboard never serves stale build-time
+// data and never depends on the DB being reachable during the build.
+export const dynamic = "force-dynamic"
+
 export default async function DashboardPage() {
   const demoUser = await getDemoUser()
   if (!demoUser) {
